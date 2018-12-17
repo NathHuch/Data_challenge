@@ -1,0 +1,54 @@
+import numpy as np
+import matplotlib.pyplot as plt
+import os
+import cv2
+from tqdm import tqdm
+import random
+import pickle
+
+print(os.getcwd())
+DATADIR =(os.getcwd()+"\data\data\data_train")
+
+CATEGORIES = ["plants", "weeds"]
+
+training_data = []
+IMG_SIZE_H = 250  # in a case of resize to normalize data size
+IMG_SIZE_W = 325  # in a case of resize to normalize data size
+
+
+def create_training_data():
+    for category in CATEGORIES:  # do plants and weeds
+
+        path = os.path.join(DATADIR, category)  # create path to plants and weeds
+        class_num = CATEGORIES.index(category)  # get the classification  (0 or a 1). 0=plants 1=weeds
+
+        for img in tqdm(os.listdir(path)):  # iterate over each image per plants and weeds
+            try:
+                img_array = cv2.imread(os.path.join(path, img), cv2.IMREAD_GRAYSCALE)  # convert to array
+                # new_array = cv2.resize(img_array, (IMG_SIZE, IMG_SIZE))  # resize to normalize data size
+                training_data.append([img_array, class_num])  # add this to our training_data
+            except Exception as e:  # in the interest in keeping the output clean...
+                pass
+
+
+create_training_data()
+
+print(len(training_data))
+
+X = []
+y = []
+
+for features,label in training_data:
+    X.append(features)
+    y.append(label)
+
+    X = np.array(X).reshape(-1, IMG_SIZE_H, IMG_SIZE_W, 1)
+    pickle_out = open("X_train.pickle", "wb")
+    pickle.dump(X, pickle_out)
+    pickle_out.close()
+
+    pickle_out = open("y_train.pickle", "wb")
+    pickle.dump(y, pickle_out)
+    pickle_out.close()
+
+    print("hello")
